@@ -26,7 +26,8 @@ async function execute() {
 
   // 여러 정렬 알고리즘을 순차적으로 실행
   for (let [isEfficient, sortGen, sortGenName, sortGenNameJPN] of [
-    [true, mergeSort, '병합 정렬', 'マージソート']
+    [true, mergeSort, '병합 정렬', 'マージソート'],
+    [false, selectionSort, '선택 정렬', '選択ソート']
   ]) {
     // 정렬 알고리즘별로 처리할 데이터 개수와 애니메이션 속도 결정
     const n = isEfficient ? slowN : fastN;

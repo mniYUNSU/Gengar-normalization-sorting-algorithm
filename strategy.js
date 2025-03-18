@@ -126,3 +126,61 @@ const mergeSort = (function () {
     return arr;
   };
 })();
+
+/**
+ * 선택 정렬(Selection Sort)
+ * 단순하지만 비효율적인 비교 기반 정렬 알고리즘이다.
+ * 이 알고리즘은 배열을 순차적으로 정렬하면서
+ * 각 단계에서 가장 작은 (또는 가장 큰) 요소를 선택하여
+ * 해당 요소를 현재 정렬된 부분의 다음 위치로 이동시키는 방식으로 동작한다.
+ * == 선택 정렬의 작동 방식==
+ * 1. 주어진 배열에서 가장 작은 요소를 찾는다.
+ * 2. 가장 작은 요소를 배열의 첫 번째 요소와 교환한다.
+ * 3. 첫 번째 요소를 제외한 나머지 배열에서 다시 가장 작은 요소를 찾는다.
+ * 4. 해당 요소를 배열의 두 번째 요소와 교환한다.
+ * 5. 이 과정을 배열의 끝까지 반복한다.
+ */
+function* selectionSort(arr, yieldCompare = true) {
+  let n = arr.length;
+  let comparisons = 0;
+  let swaps = 0;
+  let previousSwappedIndexes = [];
+
+  for (let i = 0; i < n - 1; i++) {
+    let minIndex = i;
+    for (let j = i + 1; j < n; j++) {
+      comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: previousSwappedIndexes,
+          compareIndexes: [i, j],
+          comparisons,
+          swaps
+        };
+      }
+
+      if (arr[j] < arr[minIndex]) {
+        minIndex = j;
+      }
+    }
+    if (minIndex !== i) {
+      [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+      swaps++;
+      previousSwappedIndexes = [i, minIndex];
+
+      yield {
+        array: [...arr],
+        swappedIndexes: previousSwappedIndexes,
+        comparisons,
+        swaps
+      };
+    }
+  }
+
+  yield {
+    array: [...arr],
+    comparisons,
+    swaps
+  };
+}
