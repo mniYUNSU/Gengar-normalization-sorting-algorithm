@@ -184,3 +184,59 @@ function* selectionSort(arr, yieldCompare = true) {
     swaps
   };
 }
+
+/**
+ * 삽입 정렬(Insertion Sort)
+ * 또 다른 간단한 정렬 알고리즘으로,
+ * 부분적으로 정렬된 배열과 정렬되지 않은 배열의 두 부분으로 나누어 처리한다.
+ * 정렬되지 않은 부분에서 요소를 하나씩 가져와
+ * 이미 정렬된 부분의 올바른 위치에 삽입하는 방식으로 동작한다.
+ * == 삽입 정렬의 작동 방식 ==
+ * 1. 두 번째 요소부터 시작하여 이전 요소들과 비교한다.
+ * 2. 현재 요소보다 큰 요소가 있다면, 해당 요소들을 오른쪽으로 한 칸씩 이동시킨다.
+ * 3. 현재 요소보다 작거나 같은 요소를 만나거나 배열의 시작 부분에 도달할 때까지 이동한다.
+ * 4. 현재 요소를 비교 대상 요소의 바로 앞에 삽입한다.
+ * 5. 모든 요소에 대해 1~4 단계를 반복한다.
+ */
+function* insertionSort(arr, yieldCompare = true) {
+  let n = arr.length;
+  let comparisons = 0;
+  let swaps = 0;
+  let previousSwappedIndexes = [];
+
+  for (let i = 1; i < n; i++) {
+    let key = arr[i];
+    let j = i - 1;
+
+    while (j >= 0 && arr[j] > key) {
+      comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: previousSwappedIndexes,
+          compareIndexes: [j, j + 1],
+          comparisons,
+          swaps
+        };
+      }
+      arr[j + 1] = arr[j];
+      j = j - 1;
+      swaps++;
+      previousSwappedIndexes = [j + 1, j + 2];
+    }
+    arr[j + 1] = key;
+
+    yield {
+      array: [...arr],
+      swappedIndexes: previousSwappedIndexes,
+      comparisons,
+      swaps
+    };
+  }
+
+  yield {
+    array: [...arr],
+    comparisons,
+    swaps
+  };
+}
