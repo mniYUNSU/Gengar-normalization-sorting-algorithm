@@ -240,3 +240,76 @@ function* insertionSort(arr, yieldCompare = true) {
     swaps
   };
 }
+
+/**
+ * 이진 삽입 정렬(Binary Insertion Sort)
+ * 삽입 정렬의 향상된 버전으로,
+ * 정렬된 부분에서 현재 요소를 삽입할 위치를 찾을 때 이진 검색을 사용한다.
+ * 이진 검색을 통해 삽입 위치를 찾는 데 걸리는 시간을 줄일 수 있지만,
+ * 요소를 이동하는 데 드는 시간은 여전히 동일하므로 삽입 정렬보다 약간 빠르다.
+ * == 이진 삽입 정렬의 작동 방식 ==
+ * 1. 두 번째 요소부터 시작하여 이전 요소들과 비교한다.
+ * 2. 이진 검색을 사용하여 현재 요소가 삽입될 위치를 찾는다.
+ * 3. 삽입 위치까지의 요소들을 오른쪽으로 한 칸씩 이동시킨다.
+ * 4. 현재 요소를 삽입 위치에 삽입한다.
+ * 5. 모든 요소에 대해 1~4 단계를 반복한다.
+ */
+function* binaryInsertionSort(arr, yieldCompare = true) {
+  let n = arr.length;
+  let comparisons = 0;
+  let swaps = 0;
+  let previousSwappedIndexes = [];
+
+  for (let i = 1; i < n; i++) {
+    let key = arr[i];
+    let j = i - 1;
+
+    // 이진 검색을 사용하여 삽입 위치 찾기
+    let left = 0;
+    let right = j;
+    let insertIndex = i;
+
+    while (left <= right) {
+      comparisons++;
+      let mid = Math.floor((left + right) / 2);
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: previousSwappedIndexes,
+          compareIndexes: [mid, i],
+          comparisons,
+          swaps
+        };
+      }
+      if (arr[mid] > key) {
+        right = mid - 1;
+        insertIndex = mid;
+      } else {
+        left = mid + 1;
+      }
+    }
+
+    // 삽입 위치까지 요소들을 오른쪽으로 이동
+    for (let k = j; k >= insertIndex; k--) {
+      arr[k + 1] = arr[k];
+      swaps++;
+      previousSwappedIndexes = [k, k + 1];
+    }
+
+    // 현재 요소를 삽입 위치에 삽입
+    arr[insertIndex] = key;
+
+    yield {
+      array: [...arr],
+      swappedIndexes: previousSwappedIndexes,
+      comparisons,
+      swaps
+    };
+  }
+
+  yield {
+    array: [...arr],
+    comparisons,
+    swaps
+  };
+}
