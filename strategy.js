@@ -313,3 +313,93 @@ function* binaryInsertionSort(arr, yieldCompare = true) {
     swaps
   };
 }
+
+/**
+ * 퀵 정렬(Quick Sort)
+ * 분할 정복 알고리즘의 일종으로, 피벗을 선택하고 배열을 재배치하여
+ * 피벗보다 작은 요소는 왼쪽에, 큰 요소는 오른쪽에 위치시킨다.
+ * 그런 다음, 피벗을 기준으로 좌우 부분 배열에 대해 재귀적으로 동일한 작업을 반복한다.
+ *
+ * == 퀵 정렬의 작동 방식 ==
+ * 1. 배열에서 피벗을 선택한다.
+ * 2. 피벗을 기준으로 배열을 두 부분으로 나눈다.
+ * 3. 피벗보다 작은 요소는 왼쪽에, 큰 요소는 오른쪽에 위치시킨다.
+ * 4. 피벗을 제외한 두 부분 배열에 대해 재귀적으로 퀵 정렬을 적용한다.
+ */
+
+const quickSort = (function () {
+  // 배열을 분할하고 피벗의 최종 위치를 반환하는 함수
+  function* partition(arr, low, high, yieldCompare, stats) {
+    const pivot = arr[high]; // 피벗 선택
+    let i = low - 1; // 작은 요소의 마지막 인덱스
+
+    for (let j = low; j < high; j++) {
+      stats.comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [j, high],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      if (arr[j] <= pivot) {
+        i++;
+        [arr[i], arr[j]] = [arr[j], arr[i]]; // 요소 교환
+        stats.swaps++;
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [i, j],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+    }
+
+    // 피벗을 올바른 위치로 이동
+    [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+    stats.swaps++;
+    if (yieldCompare) {
+      yield {
+        array: [...arr],
+        swappedIndexes: [i + 1, high],
+        compareIndexes: [],
+        comparisons: stats.comparisons,
+        swaps: stats.swaps
+      };
+    }
+
+    return i + 1; // 피벗의 최종 위치 반환
+  }
+
+  // 퀵 정렬의 재귀 함수
+  function* quickSortRecursive(arr, low, high, yieldCompare, stats) {
+    if (low < high) {
+      const pi = yield* partition(arr, low, high, yieldCompare, stats); // 분할 수행 및 피벗 위치 반환
+      yield* quickSortRecursive(arr, low, pi - 1, yieldCompare, stats); // 왼쪽 부분 배열 정렬
+      yield* quickSortRecursive(arr, pi + 1, high, yieldCompare, stats); // 오른쪽 부분 배열 정렬
+    }
+
+    if (yieldCompare) {
+      yield {
+        array: [...arr],
+        swappedIndexes: [],
+        compareIndexes: [],
+        comparisons: stats.comparisons,
+        swaps: stats.swaps
+      };
+    }
+  }
+
+  // 퀵 정렬을 수행하는 메인 함수
+  return function* quickSort(arr, yieldCompare = true) {
+    const stats = { comparisons: 0, swaps: 0 };
+    yield* quickSortRecursive(arr, 0, arr.length - 1, yieldCompare, stats);
+    return arr;
+  };
+})();

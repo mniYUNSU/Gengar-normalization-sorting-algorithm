@@ -29,7 +29,8 @@ async function execute() {
     [true, mergeSort, '병합 정렬', 'マージソート'],
     [false, selectionSort, '선택 정렬', '選択ソート'],
     [false, insertionSort, '삽입 정렬', '挿入ソート'],
-    [false, binaryInsertionSort, '이진 삽입 정렬', '二分挿入ソート']
+    [false, binaryInsertionSort, '이진 삽입 정렬', '二分挿入ソート'],
+    [true, quickSort, '퀵 정렬', 'クイックソート']
   ]) {
     // 정렬 알고리즘별로 처리할 데이터 개수와 애니메이션 속도 결정
     const n = isEfficient ? slowN : fastN;
