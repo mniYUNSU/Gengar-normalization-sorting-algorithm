@@ -403,3 +403,69 @@ const quickSort = (function () {
     return arr;
   };
 })();
+
+/**
+ * 버블 정렬(Bubble Sort)
+ * 인접한 두 요소를 비교하여 작은 값을 앞으로 이동시키는 방식으로 동작하는 정렬 알고리즘이다.
+ * 배열이 정렬될 때까지 반복하며, 가장 큰 값이 점차 뒤로 이동한다.
+ *
+ * == 버블 정렬의 작동 방식 ==
+ * 1. 배열의 첫 번째 요소부터 시작하여 인접한 요소와 비교한다.
+ * 2. 두 요소를 비교하여, 앞의 요소가 뒤의 요소보다 크면 위치를 교환한다.
+ * 3. 배열 끝까지 비교를 반복하고, 그 과정에서 가장 큰 요소가 배열의 끝으로 이동한다.
+ * 4. 배열이 정렬될 때까지 1~3 단계를 반복한다.
+ */
+
+function* bubbleSort(arr, yieldCompare = true) {
+  const n = arr.length;
+  let stats = { comparisons: 0, swaps: 0 };
+
+  for (let i = 0; i < n - 1; i++) {
+    let swapped = false;
+
+    for (let j = 0; j < n - 1 - i; j++) {
+      stats.comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [j, j + 1],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      // 인접 요소 비교 후 교환
+      if (arr[j] > arr[j + 1]) {
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        swapped = true;
+        stats.swaps++;
+
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [j, j + 1],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+    }
+
+    // 교환이 한 번도 이루어지지 않으면 정렬이 완료된 것으로 간주하고 종료
+    if (!swapped) break;
+  }
+
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      swappedIndexes: [],
+      compareIndexes: [],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}
