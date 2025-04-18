@@ -469,3 +469,110 @@ function* bubbleSort(arr, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * 칵테일 쉐이커 정렬(Cocktail Shaker Sort)
+ * 버블 정렬의 변형으로, 양방향으로 배열을 순회하며 정렬하는 알고리즘이다.
+ * 한 방향으로 끝까지 이동한 후, 반대 방향으로 다시 이동하면서 요소를 정렬한다.
+ *
+ * == 칵테일 쉐이커 정렬의 작동 방식 ==
+ * 1. 배열의 왼쪽에서 오른쪽으로 이동하며 인접한 요소를 비교하고 교환한다.
+ * 2. 끝까지 도달하면 방향을 반대로 바꿔 오른쪽에서 왼쪽으로 이동하며 다시 정렬한다.
+ * 3. 배열이 정렬될 때까지 1~2 단계를 반복한다.
+ */
+
+function* cocktailShakerSort(arr, yieldCompare = true) {
+  let start = 0;
+  let end = arr.length - 1;
+  let stats = { comparisons: 0, swaps: 0 };
+
+  while (start < end) {
+    let swapped = false;
+
+    // 왼쪽에서 오른쪽으로 이동하며 정렬
+    for (let i = start; i < end; i++) {
+      stats.comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [i, i + 1],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      if (arr[i] > arr[i + 1]) {
+        [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+        stats.swaps++;
+        swapped = true;
+
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [i, i + 1],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+    }
+
+    // 더 이상 교환이 없으면 정렬이 완료된 것으로 간주하고 종료
+    if (!swapped) break;
+
+    // 오른쪽 끝을 하나 줄임 (이미 정렬된 부분)
+    end--;
+
+    swapped = false;
+
+    // 오른쪽에서 왼쪽으로 이동하며 정렬
+    for (let i = end; i > start; i--) {
+      stats.comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [i - 1, i],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      if (arr[i - 1] > arr[i]) {
+        [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+        stats.swaps++;
+        swapped = true;
+
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [i - 1, i],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+    }
+
+    // 더 이상 교환이 없으면 정렬이 완료된 것으로 간주하고 종료
+    if (!swapped) break;
+
+    // 왼쪽 끝을 하나 늘림 (이미 정렬된 부분)
+    start++;
+  }
+
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      swappedIndexes: [],
+      compareIndexes: [],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}
