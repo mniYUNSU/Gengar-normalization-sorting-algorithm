@@ -640,3 +640,77 @@ function* gnomeSort(arr, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * 콤 정렬(Comb Sort)
+ * 버블 정렬의 개선된 버전으로, 큰 간격(gap)으로 요소를 비교하고 정렬하며,
+ * 반복할 때마다 간격을 줄여 나가면서 정렬하는 방식으로 동작한다.
+ * 마지막 단계에서 간격이 1이 되면 버블 정렬과 동일한 방식으로 동작한다.
+ *
+ * == 콤 정렬의 작동 방식 ==
+ * 1. 초기 간격(gap)을 배열 길이로 설정한다.
+ * 2. 간격을 점차 줄여가며 해당 간격으로 요소를 비교하고 교환한다.
+ * 3. 간격이 1이 될 때까지 2번 단계를 반복한다.
+ * 4. 간격이 1이 되면, 버블 정렬과 유사하게 동작하여 배열을 완전히 정렬한다.
+ */
+
+function* combSort(arr, yieldCompare = true) {
+  const shrinkFactor = 1.3; // 간격을 줄이는 비율
+  let gap = arr.length; // 초기 간격
+  let sorted = false; // 정렬 여부 플래그
+  let stats = { comparisons: 0, swaps: 0 };
+
+  while (!sorted) {
+    // 간격을 줄임
+    gap = Math.floor(gap / shrinkFactor);
+    if (gap <= 1) {
+      gap = 1;
+      sorted = true; // 간격이 1일 때, 마지막 패스임을 나타냄
+    }
+
+    let i = 0;
+    while (i + gap < arr.length) {
+      stats.comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [i, i + gap],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      // 요소를 비교하고 필요 시 교환
+      if (arr[i] > arr[i + gap]) {
+        [arr[i], arr[i + gap]] = [arr[i + gap], arr[i]];
+        stats.swaps++;
+        sorted = false; // 교환이 발생하면 정렬되지 않았음을 나타냄
+
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [i, i + gap],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+
+      i++;
+    }
+  }
+
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      swappedIndexes: [],
+      compareIndexes: [],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}

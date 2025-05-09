@@ -38,7 +38,8 @@ async function execute() {
       '칵테일 쉐이커 정렬',
       'カクテルシェーカーソート'
     ],
-    [false, gnomeSort, '놈 정렬', 'ノームソート']
+    [false, gnomeSort, '놈 정렬', 'ノームソート'],
+    [false, combSort, '콤 정렬', 'コムソート']
   ]) {
     // 정렬 알고리즘별로 처리할 데이터 개수와 애니메이션 속도 결정
     const n = isEfficient ? slowN : fastN;
