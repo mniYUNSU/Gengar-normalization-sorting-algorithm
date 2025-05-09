@@ -576,3 +576,67 @@ function* cocktailShakerSort(arr, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * 놈 정렬(Gnome Sort)
+ * 단순한 정렬 알고리즘으로, 삽입 정렬과 유사하게 동작하지만 인덱스를 양방향으로 이동하면서 정렬한다.
+ * 정렬이 끝날 때까지 앞뒤로 이동하며 정렬이 되지 않은 부분을 정렬한다.
+ *
+ * == 놈 정렬의 작동 방식 ==
+ * 1. 배열의 첫 번째 요소부터 시작하여 인접한 요소를 비교한다.
+ * 2. 현재 요소가 이전 요소보다 작으면 두 요소의 위치를 교환하고, 인덱스를 감소시켜 다시 이전 요소와 비교한다.
+ * 3. 그렇지 않으면 인덱스를 증가시켜 다음 요소로 이동한다.
+ * 4. 배열의 끝에 도달할 때까지 2~3 단계를 반복한다.
+ */
+
+function* gnomeSort(arr, yieldCompare = true) {
+  let index = 0;
+  let stats = { comparisons: 0, swaps: 0 };
+
+  while (index < arr.length) {
+    if (index === 0) {
+      index++;
+    }
+
+    stats.comparisons++;
+    if (yieldCompare) {
+      yield {
+        array: [...arr],
+        swappedIndexes: [],
+        compareIndexes: [index - 1, index],
+        comparisons: stats.comparisons,
+        swaps: stats.swaps
+      };
+    }
+
+    if (arr[index] >= arr[index - 1]) {
+      index++;
+    } else {
+      [arr[index], arr[index - 1]] = [arr[index - 1], arr[index]];
+      stats.swaps++;
+
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [index - 1, index],
+          compareIndexes: [],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+      index--;
+    }
+  }
+
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      swappedIndexes: [],
+      compareIndexes: [],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}
