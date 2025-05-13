@@ -714,3 +714,83 @@ function* combSort(arr, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * 셸 정렬(Shell Sort)
+ * 삽입 정렬의 일반화된 버전으로, 간격(gap)을 두고 떨어진 요소들끼리 삽입 정렬을 수행한 후,
+ * 점차 간격을 줄여가면서 전체 배열을 정렬하는 알고리즘이다.
+ * 간격이 1이 되면 일반적인 삽입 정렬과 동일한 방식으로 동작한다.
+ *
+ * == 셸 정렬의 작동 방식 ==
+ * 1. 초기 간격(gap)을 설정한다. 일반적으로 배열 길이의 절반으로 시작한다.
+ * 2. 해당 간격으로 떨어진 요소들을 삽입 정렬한다.
+ * 3. 간격을 줄이고 2번 단계를 반복한다.
+ * 4. 간격이 1이 되면, 마지막으로 전체 배열을 삽입 정렬한다.
+ */
+
+function* shellSort(arr, yieldCompare = true) {
+  let n = arr.length;
+  let gap = Math.floor(n / 2);
+  let stats = { comparisons: 0, swaps: 0 };
+
+  while (gap > 0) {
+    for (let i = gap; i < n; i++) {
+      let temp = arr[i];
+      let j = i;
+
+      // 간격이 떨어진 요소들끼리 삽입 정렬
+      while (j >= gap && arr[j - gap] > temp) {
+        stats.comparisons++;
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [],
+            compareIndexes: [j, j - gap],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+
+        arr[j] = arr[j - gap];
+        stats.swaps++;
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [j, j - gap],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+
+        j -= gap;
+      }
+
+      arr[j] = temp;
+
+      if (yieldCompare && j !== i) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [j],
+          compareIndexes: [],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+    }
+
+    gap = Math.floor(gap / 2); // 간격을 줄임
+  }
+
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      swappedIndexes: [],
+      compareIndexes: [],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}
