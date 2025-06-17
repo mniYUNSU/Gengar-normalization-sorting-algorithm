@@ -794,3 +794,102 @@ function* shellSort(arr, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * 힙 정렬(Heap Sort)
+ * 이진 힙(Binary Heap)을 이용한 정렬 알고리즘으로, 최대 힙을 구성하여 가장 큰 값을 배열의 끝으로 보내고,
+ * 남은 부분을 다시 힙으로 구성해 정렬한다. O(n log n)의 시간 복잡도를 가지며, 안정 정렬은 아니다.
+ *
+ * == 힙 정렬의 작동 방식 ==
+ * 1. 주어진 배열을 최대 힙으로 구성한다.
+ * 2. 힙의 루트(최대값)를 배열의 끝으로 이동시킨다.
+ * 3. 힙 크기를 줄이고, 남은 부분을 다시 최대 힙으로 재구성한다.
+ * 4. 2~3 단계를 반복하여 배열이 정렬될 때까지 수행한다.
+ */
+
+function* heapSort(arr, yieldCompare = true) {
+  let n = arr.length;
+  let stats = { comparisons: 0, swaps: 0 };
+
+  // 최대 힙을 구성하는 함수
+  function* heapify(arr, n, i) {
+    let largest = i; // 루트
+    let left = 2 * i + 1; // 왼쪽 자식
+    let right = 2 * i + 2; // 오른쪽 자식
+
+    // 왼쪽 자식이 루트보다 크다면
+    if (left < n && arr[left] > arr[largest]) {
+      largest = left;
+    }
+
+    // 오른쪽 자식이 현재 가장 큰 값보다 크다면
+    if (right < n && arr[right] > arr[largest]) {
+      largest = right;
+    }
+
+    // 가장 큰 값이 루트가 아니라면
+    if (largest !== i) {
+      stats.comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [i, largest],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      [arr[i], arr[largest]] = [arr[largest], arr[i]];
+      stats.swaps++;
+
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [i, largest],
+          compareIndexes: [],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      // 재귀적으로 힙을 재구성
+      yield* heapify(arr, n, largest);
+    }
+  }
+
+  // 초기 배열을 최대 힙으로 변환
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+    yield* heapify(arr, n, i);
+  }
+
+  // 하나씩 요소를 힙에서 추출하여 정렬
+  for (let i = n - 1; i > 0; i--) {
+    [arr[0], arr[i]] = [arr[i], arr[0]];
+    stats.swaps++;
+
+    if (yieldCompare) {
+      yield {
+        array: [...arr],
+        swappedIndexes: [0, i],
+        compareIndexes: [],
+        comparisons: stats.comparisons,
+        swaps: stats.swaps
+      };
+    }
+
+    yield* heapify(arr, i, 0);
+  }
+
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      swappedIndexes: [],
+      compareIndexes: [],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}
