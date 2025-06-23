@@ -893,3 +893,97 @@ function* heapSort(arr, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * 홀짝 정렬(Odd-Even Sort)
+ *
+ * 홀짝 정렬은 버블 정렬의 변형으로, 인접한 두 요소를 비교하여 정렬하지만
+ * 번갈아 가며 홀수 인덱스 쌍과 짝수 인덱스 쌍을 비교하는 방식으로 동작한다.
+ * 안정 정렬이며, 최악의 경우 시간 복잡도는 O(n^2)이다.
+ *
+ * == 홀짝 정렬의 작동 방식 ==
+ * 1. 배열의 인접한 요소들을 번갈아 가며 홀수 인덱스 쌍과 짝수 인덱스 쌍으로 비교하고 교환한다.
+ * 2. 배열이 완전히 정렬될 때까지 1번 단계를 반복한다.
+ */
+
+function* oddEvenSort(arr, yieldCompare = true) {
+  let n = arr.length;
+  let sorted = false;
+  let stats = { comparisons: 0, swaps: 0 };
+
+  while (!sorted) {
+    sorted = true;
+
+    // 홀수 인덱스 쌍 비교 및 정렬
+    for (let i = 1; i < n - 1; i += 2) {
+      stats.comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [i, i + 1],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      if (arr[i] > arr[i + 1]) {
+        [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+        stats.swaps++;
+        sorted = false;
+
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [i, i + 1],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+    }
+
+    // 짝수 인덱스 쌍 비교 및 정렬
+    for (let i = 0; i < n - 1; i += 2) {
+      stats.comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [i, i + 1],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      if (arr[i] > arr[i + 1]) {
+        [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+        stats.swaps++;
+        sorted = false;
+
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [i, i + 1],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+    }
+  }
+
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      swappedIndexes: [],
+      compareIndexes: [],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}
