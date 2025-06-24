@@ -42,7 +42,8 @@ async function execute() {
     [false, combSort, '콤 정렬', 'コムソート'],
     [false, shellSort, '셸 정렬', 'シェルソート'],
     [true, heapSort, '힙 정렬', 'ヒープソート'],
-    [false, oddEvenSort, '홀짝 정렬', '奇偶ソート']
+    [false, oddEvenSort, '홀짝 정렬', '奇偶ソート'],
+    [true, bitonicSort, '바이토닉 정렬', 'バイトニックソート']
   ]) {
     // 정렬 알고리즘별로 처리할 데이터 개수와 애니메이션 속도 결정
     const n = isEfficient ? slowN : fastN;

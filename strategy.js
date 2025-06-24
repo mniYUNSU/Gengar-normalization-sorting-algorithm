@@ -987,3 +987,81 @@ function* oddEvenSort(arr, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * 바이토닉 정렬(Bitonic Sort)
+ *
+ * 바이토닉 정렬은 병렬 처리를 위해 설계된 비교 정렬 알고리즘으로,
+ * O(log^2 n)의 시간 복잡도를 가진다. 이 알고리즘은 입력 배열을
+ * 바이토닉 시퀀스로 정렬한 후, 그 시퀀스를 병합하여 전체를 정렬한다.
+ *
+ * == 바이토닉 정렬의 작동 방식 ==
+ * 1. 입력 배열을 점차적으로 증가하는 부분과 감소하는 부분으로 나눈다.
+ * 2. 각각의 부분을 재귀적으로 정렬한다.
+ * 3. 정렬된 두 부분을 병합하여 하나의 정렬된 배열을 만든다.
+ */
+function* bitonicSort(arr, up = true, yieldCompare = true) {
+  let n = arr.length;
+  let stats = { comparisons: 0, swaps: 0 };
+
+  // 두 부분을 병합하는 함수
+  function* bitonicMerge(arr, low, cnt, up) {
+    if (cnt <= 1) return;
+
+    let mid = Math.floor(cnt / 2);
+    for (let i = low; i < low + mid; i++) {
+      stats.comparisons++;
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [i, i + mid],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+
+      if (arr[i] > arr[i + mid] === up) {
+        [arr[i], arr[i + mid]] = [arr[i + mid], arr[i]];
+        stats.swaps++;
+
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [i, i + mid],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+    }
+
+    yield* bitonicMerge(arr, low, mid, up);
+    yield* bitonicMerge(arr, low + mid, mid, up);
+  }
+
+  // 바이토닉 정렬 수행
+  function* bitonicSortRec(arr, low, cnt, up) {
+    if (cnt <= 1) return;
+
+    let mid = Math.floor(cnt / 2);
+
+    yield* bitonicSortRec(arr, low, mid, true);
+    yield* bitonicSortRec(arr, low + mid, mid, false);
+
+    yield* bitonicMerge(arr, low, cnt, up);
+  }
+
+  yield* bitonicSortRec(arr, 0, n, up);
+
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}
