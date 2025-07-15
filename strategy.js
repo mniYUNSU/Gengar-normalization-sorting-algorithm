@@ -1065,3 +1065,131 @@ function* bitonicSort(arr, up = true, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * 사이클 정렬(Cycle Sort)
+ *
+ * 사이클 정렬은 배열 내에서 불필요한 복사 없이 최소 스왑 횟수로 정렬하는
+ * 비교 기반 정렬 알고리즘이다. 사이클 정렬의 시간 복잡도는 O(n^2)이지만,
+ * 각 요소를 정확히 한 번씩만 위치에 놓으므로 특정 상황에서 효율적이다.
+ *
+ * == 사이클 정렬의 작동 방식 ==
+ * 1. 배열의 각 요소를 한 번씩 사이클로 위치를 찾아 이동시킨다.
+ * 2. 각 사이클을 정리하면서 요소를 제자리에 위치시킨다.
+ * 3. 필요하면 중복 요소를 건너뛰고 진행한다.
+ */
+function* cycleSort(arr, yieldCompare = true) {
+  // 배열의 길이를 저장한다.
+  let n = arr.length;
+  // 비교 및 스왑 횟수를 추적하는 객체를 선언한다.
+  let stats = { comparisons: 0, swaps: 0 };
+
+  // 배열의 각 요소에 대해 사이클을 시작한다.
+  for (let cycleStart = 0; cycleStart < n - 1; cycleStart++) {
+    // 현재 요소를 저장한다.
+    let item = arr[cycleStart];
+    // 현재 요소의 올바른 위치를 찾기 위해 위치를 추적한다.
+    let pos = cycleStart;
+
+    // 현재 요소보다 작은 요소의 개수를 센다.
+    for (let i = cycleStart + 1; i < n; i++) {
+      stats.comparisons++;
+      if (arr[i] < item) {
+        pos++;
+      }
+
+      // 배열의 상태를 외부로 전달하기 위해 yield한다.
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [],
+          compareIndexes: [i],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+    }
+
+    // 요소가 이미 제자리에 있다면 다음 사이클로 넘어간다.
+    if (pos === cycleStart) {
+      continue;
+    }
+
+    // 동일한 요소가 있는 경우 위치를 건너뛰고 조정한다.
+    while (item === arr[pos]) {
+      pos++;
+    }
+
+    // 요소를 제자리에 놓고 스왑 횟수를 기록한다.
+    if (pos !== cycleStart) {
+      [arr[pos], item] = [item, arr[pos]];
+      stats.swaps++;
+
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [pos],
+          compareIndexes: [],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+    }
+
+    // 남은 사이클을 계속 수행한다.
+    while (pos !== cycleStart) {
+      pos = cycleStart;
+
+      // 현재 요소보다 작은 요소의 개수를 다시 센다.
+      for (let i = cycleStart + 1; i < n; i++) {
+        stats.comparisons++;
+        if (arr[i] < item) {
+          pos++;
+        }
+
+        // 배열의 상태를 외부로 전달하기 위해 yield한다.
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [],
+            compareIndexes: [i],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+
+      // 동일한 요소가 있는 경우 위치를 건너뛰고 조정한다.
+      while (item === arr[pos]) {
+        pos++;
+      }
+
+      // 요소를 제자리에 놓고 스왑 횟수를 기록한다.
+      if (item !== arr[pos]) {
+        [arr[pos], item] = [item, arr[pos]];
+        stats.swaps++;
+
+        if (yieldCompare) {
+          yield {
+            array: [...arr],
+            swappedIndexes: [pos],
+            compareIndexes: [],
+            comparisons: stats.comparisons,
+            swaps: stats.swaps
+          };
+        }
+      }
+    }
+  }
+
+  // 최종적으로 정렬된 배열을 반환한다.
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}
