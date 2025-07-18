@@ -44,7 +44,8 @@ async function execute() {
     [true, heapSort, '힙 정렬', 'ヒープソート'],
     [false, oddEvenSort, '홀짝 정렬', '奇偶ソート'],
     [true, bitonicSort, '바이토닉 정렬', 'バイトニックソート'],
-    [false, cycleSort, '사이클 정렬', 'サイクルソート']
+    [false, cycleSort, '사이클 정렬', 'サイクルソート'],
+    [false, lsdRadixSort, 'LSD 기수 정렬', 'LSD基数ソート']
   ]) {
     // 정렬 알고리즘별로 처리할 데이터 개수와 애니메이션 속도 결정
     const n = isEfficient ? slowN : fastN;

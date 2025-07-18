@@ -1193,3 +1193,99 @@ function* cycleSort(arr, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * LSD 기수 정렬(LSD Radix Sort)
+ *
+ * LSD 기수 정렬은 비교 기반이 아닌 정렬 알고리즘으로, 정수 또는 문자열을
+ * 자리수(또는 문자)의 최하위부터 시작하여 정렬한다. 이 알고리즘은 안정적이며
+ * O(nk)의 시간 복잡도를 가지며, 여기서 n은 숫자의 개수, k는 숫자의 최대 자릿수이다.
+ *
+ * == LSD 기수 정렬의 작동 방식 ==
+ * 1. 배열의 각 숫자를 자릿수별로 분류한다.
+ * 2. 각 자릿수마다 안정적인 계수 정렬(Counting Sort)을 사용해 정렬한다.
+ * 3. 자릿수 순서대로 정렬된 배열을 얻을 때까지 반복한다.
+ */
+function* lsdRadixSort(arr, yieldCompare = true) {
+  // 최대 자릿수를 찾기 위해 배열의 최대값을 확인한다.
+  const maxNum = Math.max(...arr);
+  // 최대 자릿수를 기반으로 반복 횟수를 결정한다.
+  let exp = 1;
+  let stats = { comparisons: 0, swaps: 0 };
+
+  // 자릿수를 기반으로 반복하여 정렬한다.
+  while (Math.floor(maxNum / exp) > 0) {
+    // 계수 정렬을 위한 버킷을 초기화한다 (0~9).
+    let output = new Array(arr.length).fill(0);
+    let count = new Array(10).fill(0);
+
+    // 각 자릿수에 따라 요소를 분류한다.
+    for (let i = 0; i < arr.length; i++) {
+      let digit = Math.floor(arr[i] / exp) % 10;
+      yield {
+        array: [...arr],
+        swappedIndexes: [],
+        compareIndexes: [i],
+        comparisons: stats.comparisons,
+        swaps: stats.swaps
+      };
+      count[digit]++;
+    }
+
+    // 누적 카운트를 계산하여 위치를 결정한다.
+    for (let i = 1; i < 10; i++) {
+      count[i] += count[i - 1];
+      yield {
+        array: [...arr],
+        swappedIndexes: [],
+        compareIndexes: [],
+        comparisons: stats.comparisons,
+        swaps: stats.swaps
+      };
+    }
+
+    // 배열의 요소들을 자릿수에 따라 정렬된 위치에 배치한다.
+    for (let i = arr.length - 1; i >= 0; i--) {
+      let digit = Math.floor(arr[i] / exp) % 10;
+      output[--count[digit]] = arr[i];
+      yield {
+        array: [...arr],
+        swappedIndexes: [],
+        compareIndexes: [i],
+        comparisons: stats.comparisons,
+        swaps: stats.swaps
+      };
+    }
+
+    // 정렬된 결과를 원래 배열에 복사한다.
+    for (let i = 0; i < arr.length; i++) {
+      arr[i] = output[i];
+      stats.swaps++;
+
+      // 배열의 상태를 외부로 전달하기 위해 yield한다.
+      if (yieldCompare) {
+        yield {
+          array: [...arr],
+          swappedIndexes: [i],
+          compareIndexes: [],
+          comparisons: stats.comparisons,
+          swaps: stats.swaps
+        };
+      }
+    }
+
+    // 다음 자릿수로 이동한다.
+    exp *= 10;
+  }
+
+  // 최종적으로 정렬된 배열을 반환한다.
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      comparisons: stats.comparisons,
+      swaps: stats.swaps
+    };
+  }
+
+  return arr;
+}
