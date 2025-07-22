@@ -1289,3 +1289,61 @@ function* lsdRadixSort(arr, yieldCompare = true) {
 
   return arr;
 }
+
+/**
+ * 보고 정렬(Bogo Sort)
+ *
+ * 보고 정렬은 무작위로 요소를 섞어가며 정렬이 완료될 때까지 반복하는 알고리즘이다.
+ * 이 알고리즘은 최악의 경우 무한히 실행될 수 있으며, 평균 시간 복잡도는 O(n!)이다.
+ * 이는 실용적이지 않은 알고리즘이지만, 개념적으로 이해하기 쉽다는 특징이 있다.
+ *
+ * == 보고 정렬의 작동 방식 ==
+ * 1. 배열이 정렬되었는지 확인한다.
+ * 2. 정렬되지 않았다면, 배열의 요소를 무작위로 섞는다.
+ * 3. 배열이 정렬될 때까지 1-2 단계를 반복한다.
+ */
+function* bogoSort(arr, yieldCompare = true) {
+  let comparisons = 0;
+  let swaps = 0;
+
+  // 배열이 정렬되었는지 확인하는 함수
+  function isSorted(arr) {
+    for (let i = 1; i < arr.length; i++) {
+      comparisons++;
+      if (arr[i - 1] > arr[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // 정렬될 때까지 반복
+  while (!isSorted(arr)) {
+    // 배열을 무작위로 섞는다
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+      swaps++;
+      yield {
+        array: [...arr],
+        swappedIndexes: [i, j],
+        compareIndexes: [],
+        comparisons: comparisons,
+        swaps: swaps
+      };
+    }
+  }
+
+  // 최종적으로 정렬된 배열을 반환한다
+  if (yieldCompare) {
+    yield {
+      array: [...arr],
+      swappedIndexes: [],
+      compareIndexes: [],
+      comparisons: comparisons,
+      swaps: swaps
+    };
+  }
+
+  return arr;
+}
